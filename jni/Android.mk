@@ -33,7 +33,7 @@ LOCAL_SRC_FILES := xmltest.cpp
 LOCAL_STATIC_LIBRARIES := libcurl libtinyxml
 
 # 如果不包含这一句的话，会提示：__android_log_print 未定义
-LOCAL_LDLIBS := -llog
+LOCAL_LDLIBS := -llog -lsqlite 
 
 
 include $(BUILD_EXECUTABLE)

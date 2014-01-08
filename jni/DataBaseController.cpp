@@ -1,20 +1,4 @@
-#include <iostream>
-#include <sqlite3.h>
-using namespace std;
-
-class DataBaseController{
-
-	public:
-		DataBaseController();
-		~DataBaseController();
-		int openDB();
-		int closeDB();
-		int syncDB();
-	private:
-		sqlite3 * db = 0;
-		char * pErrMsg = 0;
-		
-};
+#include "DataBaseController.h"
 
 DataBaseController::DataBaseController()
 {
@@ -25,11 +9,33 @@ DataBaseController::DataBaseController()
 	if ( ret != SQLITE_OK )
 	{	
 		cout << "open error:"<<sqlite3_errmsg(db)<<endl;
-        return -1;
+        
     }
+}
+
+DataBaseController::~DataBaseController()
+{
+	db = 0;
+	pErrMsg = 0;
 }
 
 int DataBaseController::closeDB()
 {
 	
+}
+
+map<int, string> DataBaseController::generateSQL(vector< map<string, string> > OP)
+{
+	string str1("insert into OperationDB values(null,");
+	map<int, string> MAP;
+	int i=0;
+	for(vector< map<string, string> >::iterator iter = OP.begin(); iter != OP.end(); iter++)
+	{
+	string sql = str1+(*iter)["devid"]+",'"+(*iter)["cartag"]+"',"+(*iter)["operation"]+");";
+	MAP[i++] = sql;
+	cout<< sql<< endl;
+	}
+	
+	
+	return MAP;
 }

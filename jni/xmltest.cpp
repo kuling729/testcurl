@@ -20,6 +20,7 @@
 
 #include "xmlController.h"
 #include "downloadController.h"
+#include "DataBaseController.h"
 // #include "tinyxml/tinyxml.h"
 // #include "curl/curl.h"
 // #include <string>
@@ -149,10 +150,11 @@ int main()
 	int count = 0;
 	bool status = false;
 	const string filename = "/data/c.xml";
-	struct timeval tv;
-	struct timezone tz;
-	gettimeofday (&tv, &tz);
-	long beginTime = tv.tv_usec;
+
+	struct timeval start;
+	struct timeval end;
+	gettimeofday (&start, NULL);
+	
 	
 	while(count++ < times)
 	{
@@ -166,13 +168,23 @@ int main()
 	dc.resumeDownload = false;
 	if(status == true)
 	{
-		// xmlController c("/data/c.xml");
-		// c.parseFile();
-		// remove("/data/c.xml");
+		xmlController c("/data/c.xml");
+		vector< map<string, string> > vOperations = c.parseFile();
+		remove("/data/c.xml");
+
+		DataBaseController dbc;
+		
+		map<int, string> MAP = dbc.generateSQL(vOperations);
+		for(map<int, string>::iterator iter = MAP.begin(); iter != MAP.end(); ++iter)
+		{
+			cout<< (*iter).first<< "  "<< (*iter).second<<endl;
+		}
+		
 	}
 	
-	gettimeofday (&tv , &tz);
-	printf("time cost: %ld\n",tv.tv_usec-beginTime);
+	gettimeofday (&end , NULL);
+	unsigned long cost = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+	cout<< "cost:"<<cost<<endl;
 
 	
 

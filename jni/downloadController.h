@@ -13,7 +13,6 @@ public:
 	bool downloadToFile(const std::string filename);
 	double getDownloadFileLenth(); 
 	long getLocalFileLenth(const std::string filename);
-	void sayHello();
 	bool resumeDownload;
 private:
 	

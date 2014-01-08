@@ -4,10 +4,11 @@ using namespace std;
 
 downloadController::downloadController()
 {
-	fileURL = "http://192.168.0.13:8888/testServlet/services/second.do?method=test";
+	fileURL = "http://192.168.0.35:8888/testServlet/services/second.do?method=test";
+	
 	resumeDownload = false;        //是否需要下载的标记位  
 	downloadFileLenth = 0;         //需要下载的总大小, 远程文件的大小 
-	//localFilePath = "/data/dll.pdf";
+	
 	timeout = 30;
 }
 
@@ -16,15 +17,14 @@ downloadController::~downloadController()
 
 }
 
-void downloadController::sayHello()
-{
-	cout<<"hello"<<endl;
-}
 
 size_t my_write_file(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
   return fwrite(ptr, size, nmemb, stream);
 }
+
+
+
 
 bool downloadController::downloadToFile(const string filename)
 {
@@ -41,7 +41,9 @@ bool downloadController::downloadToFile(const string filename)
 
 		fp = fopen(filename.c_str(),"ab+");
         curl_easy_setopt(curl, CURLOPT_URL, url); 
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);  
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout); 
+		//curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, );
+		//curl_easy_setopt(curl, CURLOPT_HEADERDATA, ); 
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_write_file);
 	    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 	    curl_easy_setopt(curl, CURLOPT_RESUME_FROM, getLocalFileLenth(filename));
@@ -63,12 +65,7 @@ bool downloadController::downloadToFile(const string filename)
         curl_easy_cleanup(curl);   
 			
     }   
-	
-	
     curl_global_cleanup();
-	
-	
-	 
 	return !resumeDownload;
 }
 

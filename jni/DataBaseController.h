@@ -14,9 +14,9 @@ class DataBaseController{
 		~DataBaseController();
 		int openDB();
 		int closeDB();
-		int syncDB();
-		map<int, string> generateSQL(vector< map<string, string> > OP);
+		int syncDB(vector< map<string, string> > OP);
 	private:
+		map<int, string> generateSQL(vector< map<string, string> > OP);
 		sqlite3 * db;
 		char * pErrMsg;
 		

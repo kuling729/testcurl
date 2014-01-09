@@ -19,7 +19,7 @@ vector< map<string, string> > xmlController::parseFile()
         printf("Error is : %s\n",doc.Error());
         exit(1);
     }
-    cout<<"loadfile"<<endl;
+    cout<<"parseFile"<<endl;
 	
 
 	pCurrentElement = doc.FirstChildElement( "Lists" )->FirstChildElement("OP");
@@ -39,28 +39,29 @@ vector< map<string, string> > xmlController::parseFile()
 		pCurrentElement = pCurrentElement->NextSiblingElement();
 	}
 	
-	for(vector< map<string, string> >::iterator iter = vOperations.begin(); iter != vOperations.end(); iter++)
-	{
-	cout<< (*iter)["cartag"] << endl;
+	// for(vector< map<string, string> >::iterator iter = vOperations.begin(); iter != vOperations.end(); iter++)
+	// {
+	// cout<< (*iter)["cartag"] << endl;
 		
-	}
+	// }
 	
 	if ( pCurrentElement )  
     {  
         delete pCurrentElement;  
         pCurrentElement = NULL;  
     }
-	
+	cout<<"finish parseFile"<<endl;
 	return vOperations;
 }
 
 xmlController::xmlController(string xml)
 {
 	xmlFile = xml;
+	cout<<"create xmlcontroler"<<endl;
 }
 
 xmlController::~xmlController()
 {
-
+	cout<<"destroy xmlcontroler"<<endl;
 }
 

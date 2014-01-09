@@ -27,8 +27,8 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_CFLAGS := -D_GNU_SOURCE
 LOCAL_CPPFLAGS := -frtti
-LOCAL_MODULE:= xmltest
-LOCAL_SRC_FILES := xmltest.cpp xmlController.cpp downloadController.cpp DataBaseController.cpp
+LOCAL_MODULE:= sync
+LOCAL_SRC_FILES := sync.cpp xmlController.cpp downloadController.cpp DataBaseController.cpp
 # 使用的本地静态库
 LOCAL_STATIC_LIBRARIES := libcurl libtinyxml
 

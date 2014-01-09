@@ -48,16 +48,17 @@ bool downloadController::downloadToFile(const string filename)
 	    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 	    curl_easy_setopt(curl, CURLOPT_RESUME_FROM, getLocalFileLenth(filename));
 	    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
-       	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+       	curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
         res = curl_easy_perform(curl); 
         fclose(fp);	
         if (res == CURLE_OK) {    
-			cout<<"curl success"<<endl;
+			cout<<"download success"<<endl;
 			resumeDownload = false; 	        
         }
 		else
 		{
 			resumeDownload = true;
+			cout<<"download failed"<<endl;
             cout<<"curl error: "<<res<<endl; 
 		}
 

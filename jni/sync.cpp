@@ -55,7 +55,7 @@ int openDB()
 
 	int ret = 0;
 	const char* const dbname = "test.db";
-	const char* CREATE_TABLE = "create table OperationDB(id integer primary key autoincrement, devid int, cartag varchar(20), operation int);";
+	const char* CREATE_TABLE = "create table OperationDB  if not exists (id integer primary key autoincrement, devid int, cartag varchar(20), operation int);";
 	const char* INSERT_DATA = "insert into OperationDB values(null, 29,'fish',4);";
 	const char* QUERY_ALL = "select count(*) from OperationDB;";
 	ret = sqlite3_open(dbname, &db);
@@ -104,21 +104,25 @@ int main()
 {
 
 	downloadController dc;
-	dc.getDownloadFileLenth();
-	
+	xmlController xmlc;
+	//dc.getDownloadFileLenth();
+	DataBaseController dbc;
 	int times = 605;
-	int count = 0;
+	
 	bool status = false;
 	const string filename = "/data/c.xml";
 
 	struct timeval start;
 	struct timeval end;
+
+	//for(int i=0;i<10;i++)
+	{
 	gettimeofday (&start, NULL);
 	
-	
+	int count = 0;
 	while(count++ < times)
 	{
-		cout<<"download time: "<<count<<endl;
+		cout<< "download time: "<< count<< endl;
 		status = dc.downloadToFile(filename);
 		if(status == true)
 			break;
@@ -128,24 +132,17 @@ int main()
 	dc.resumeDownload = false;
 	if(status == true)
 	{
-		xmlController c("/data/c.xml");
-		vector< map<string, string> > vOperations = c.parseFile();
-		
-		DataBaseController dbc;
-		
-		//map<int, string> SQLs = dbc.generateSQL(vOperations);
+		vector< map<string, string> > vOperations = xmlc.parseFile(filename);
 		dbc.syncDB(vOperations);
-		remove("/data/c.xml");
-		cout<<"delete file"<<endl;
-		
-
+		remove(filename.c_str());
+		cout<< "delete file"<< endl;
 	}
 	
 	gettimeofday (&end , NULL);
-	unsigned long cost = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	cout<< "cost:"<<cost<<" us"<<endl;
+	unsigned long cost = 1000000 * (end.tv_sec - start.tv_sec) + end.tv_usec - start.tv_usec;
+	cout<< "cost:"<< cost<< " us"<< endl;
 
-	
+	}
 
 	
 	 

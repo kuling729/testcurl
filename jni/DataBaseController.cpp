@@ -31,7 +31,7 @@ DataBaseController::DataBaseController()
 {
 	const char* const dbname = "test.db";
 	const char* CREATE_TABLE = "create table OperationDB(id integer primary key autoincrement, devid int, cartag varchar(20), operation int);";
-	const char* QUERY_ALL = "select count(*) from OperationDB;";
+	const char* QUERY_ALL = "select * from OperationDB limit 5;";
 	int ret = 0;
 	ret = sqlite3_open(dbname, &db);
 	cout<<"create DataBaseController"<<endl;
@@ -44,8 +44,9 @@ DataBaseController::DataBaseController()
 	
 	if ( ret != SQLITE_OK )
    	{
-         printf("SQL error: %s\n", pErrMsg);
-         sqlite3_free(pErrMsg);
+        printf("SQL error: %s\n", pErrMsg);
+        sqlite3_free(pErrMsg);
+		pErrMsg = NULL;
     }
     
 }
@@ -53,6 +54,7 @@ DataBaseController::DataBaseController()
 DataBaseController::~DataBaseController()
 {
 	cout<<"destroy DataBaseController "<<endl;
+	sqlite3_free(pErrMsg);
 	sqlite3_close(db);
 	db = 0;
 	pErrMsg = 0;
@@ -93,11 +95,41 @@ map<int, string> DataBaseController::generateSQL(vector< map<string, string> > O
 	return MAP;
 }
 
+
+//异或校验
+void XORValid(const char* buffer, int len)
+{
+    char checksum = 0, cr = 13, ln = 10;
+    char ch1,c1; //校验位的高四位和第四位
+    for (int i = 0;  i<len;  i++)
+    {
+        checksum = checksum ^ buffer[i+1]; //进行异或交验取值
+    }
+
+    ch1 = (checksum  >> 4) & 0x0F;  //取高位数；
+    c1 = checksum & 0x0F;  //取低位数；
+
+    if (ch1 < 10) //低于10的数
+        ch1 = ch1  +  '0';
+    else
+        ch1 = (ch1 - 10 ) +  'A'; //不低于10的16进制数，如：A、B、C、D、E、F
+
+    if (c1 < 10)
+        c1 = c1  +  '0';
+    else
+        c1 = (c1 - 10 )+  'A';
+
+    printf("%c, %c\n",ch1, c1);
+}
+
 int DataBaseController::syncDB(vector< map<string, string> > OP)
 {
-	const char* QUERY_ALL = "select count(*) from OperationDB;";
+	int ret = 0;
+	const char* QUERY_ALL = "SELECT * FROM OperationDB ORDER BY id DESC limit 5;";
+	const char* test = "粤A1234";
 	unsigned long cost;
-	map<int, string> SQLs = generateSQL(OP);
+	//map<int, string> SQLs = generateSQL(OP);
+	string SQLs = makeSQL(OP);
 	sqlite3_exec(db, QUERY_ALL, print_result_cb, 0, &pErrMsg);
 
 	struct timeval start;
@@ -105,31 +137,23 @@ int DataBaseController::syncDB(vector< map<string, string> > OP)
 	gettimeofday (&start, NULL);
 
 	sqlite3_exec(db, "BEGIN;", 0, 0, &pErrMsg);
-	
-	for(map<int, string>::iterator iter = SQLs.begin(); iter != SQLs.end(); ++iter)
+	//for(map<int, string>::iterator iter = SQLs.begin(); iter != SQLs.end(); ++iter)
 	{
-		sqlite3_exec(db, (*iter).second.c_str(), 0, 0, &pErrMsg);
+		sqlite3_exec(db, SQLs.c_str(), 0, 0, &pErrMsg);
 	}
-	
-	
-	sqlite3_exec(db, "COMMIT;", 0, 0, &pErrMsg);
+	ret = sqlite3_exec(db, "COMMIT;", 0, 0, &pErrMsg);
+	if(SQLITE_OK != ret)
+	{
+
+	}
 
 	gettimeofday (&end , NULL);
 	cost = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	cout<< "sync db 1 cost:"<<cost<<" us"<<endl;
-
-
-	string sqls = makeSQL(OP);
-	gettimeofday (&start, NULL);
-	sqlite3_exec(db, "BEGIN;", 0, 0, &pErrMsg);
-	sqlite3_exec(db, sqls.c_str(), 0, 0, &pErrMsg);
-	sqlite3_exec(db, "COMMIT;", 0, 0, &pErrMsg);
-	gettimeofday (&end , NULL);
-	cost = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
-	cout<< "sync db 2 cost:"<<cost<<" us"<<endl;
+	cout<< "sync db cost:"<<cost<<" us"<<endl;
 
 	sqlite3_exec(db, QUERY_ALL, print_result_cb, 0, &pErrMsg);
-
+	sqlite3_free(pErrMsg);
+	pErrMsg = NULL;
 	return 0;
 	
 }

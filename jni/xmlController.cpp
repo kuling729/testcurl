@@ -2,17 +2,14 @@
 #include "xmlController.h"
 
 
-vector< map<string, string> > xmlController::parseFile()
+vector< map<string, string> > xmlController::parseFile(const string xmlFile)
 {
 
-	//static const char* xml = XML.c_str();
+	
 	TiXmlElement* pCurrentElement = NULL;
 	vector< map<string, string> > vOperations;
-	
-	
-	string fileXml = xmlFile;
 
-	TiXmlDocument doc(fileXml.c_str());
+	TiXmlDocument doc(xmlFile.c_str());
 	bool isOK = doc.LoadFile(); 
 	if(!isOK)
     {
@@ -54,9 +51,9 @@ vector< map<string, string> > xmlController::parseFile()
 	return vOperations;
 }
 
-xmlController::xmlController(string xml)
+xmlController::xmlController()
 {
-	xmlFile = xml;
+	
 	cout<<"create xmlcontroler"<<endl;
 }
 

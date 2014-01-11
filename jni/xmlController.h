@@ -11,12 +11,12 @@ using namespace std;
 
 class xmlController{
 public:
-	xmlController(std::string xml);
+	xmlController();
 	~xmlController();
-	vector< map<string, string> > parseFile();
+	vector< map<string, string> > parseFile(std::string xml);
 	bool parseString();
 private:
-	std::string xmlFile;
+	
 };
 
 #endif

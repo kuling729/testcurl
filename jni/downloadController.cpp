@@ -4,6 +4,7 @@ using namespace std;
 
 downloadController::downloadController()
 {
+	cout<<"create downloadController"<<endl;
 	fileURL = "http://192.168.0.35:8888/testServlet/services/second.do?method=test";
 	
 	resumeDownload = false;        //是否需要下载的标记位  
@@ -14,7 +15,7 @@ downloadController::downloadController()
 
 downloadController::~downloadController()
 {
-
+	cout<<"destroy downloadController"<<endl;
 }
 
 
@@ -31,11 +32,12 @@ bool downloadController::downloadToFile(const string filename)
 	CURL *curl; 
     CURLcode res;
 	string content;
-	
+	int retcode = 0;
 	FILE *fp = NULL;
 	const char* url = fileURL.c_str();
+	const int FILE_EXIST = 200;
+
     curl_global_init(CURL_GLOBAL_ALL);
- 	
     curl = curl_easy_init();
     if (curl) {     
 
@@ -47,24 +49,29 @@ bool downloadController::downloadToFile(const string filename)
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_write_file);
 	    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 	    curl_easy_setopt(curl, CURLOPT_RESUME_FROM, getLocalFileLenth(filename));
-	    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+	    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
        	curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
         res = curl_easy_perform(curl); 
         fclose(fp);	
-        if (res == CURLE_OK) {    
-			cout<<"download success"<<endl;
-			resumeDownload = false; 	        
+        if (CURLE_OK == res) {   
+        	res = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE , &retcode); 
+        	if(CURLE_OK == res && FILE_EXIST == retcode)
+        	{
+				cout<<"download success"<<endl;
+				resumeDownload = false; 
+			}
+			else
+			{
+				cout<<"file not exist"<<endl;
+			}	        
         }
 		else
 		{
 			resumeDownload = true;
 			cout<<"download failed"<<endl;
-            cout<<"curl error: "<<res<<endl; 
+            cout<<"curl error: "<<res<<endl;
 		}
-
-        
-        curl_easy_cleanup(curl);   
-			
+        curl_easy_cleanup(curl);   			
     }   
     curl_global_cleanup();
 	return !resumeDownload;
